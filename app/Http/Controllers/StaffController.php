@@ -8,18 +8,30 @@ use App\Models\Department;
 use App\Models\User;
 use App\Services\AuditRecorder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class StaffController extends Controller
 {
     public function __construct(private AuditRecorder $audit) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', User::class);
 
+        $search = trim((string) $request->query('q', ''));
+
         return view('staff.index', [
-            'staff' => User::query()->with('department')->where('role', '!=', 'admin')->orderBy('name')->get(),
+            'search' => $search,
+            'staff' => User::query()
+                ->with('department')
+                ->where('role', '!=', 'admin')
+                ->when($search !== '', function ($query) use ($search) {
+                    $like = '%'.mb_strtolower($search).'%';
+                    $query->where(fn ($inner) => $inner->whereRaw('lower(name) like ?', [$like])->orWhereRaw('lower(email) like ?', [$like]));
+                })
+                ->orderBy('name')
+                ->get(),
             'departments' => Department::query()->orderBy('name')->get(),
         ]);
     }
