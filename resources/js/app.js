@@ -11,13 +11,17 @@ document.addEventListener('submit', (event) => {
         return;
     }
     event.preventDefault();
+    const danger = form.dataset.confirmTone === 'danger';
     Swal.fire({
         title: form.dataset.confirm,
-        icon: 'question',
+        text: form.dataset.confirmText || undefined,
+        icon: danger ? 'warning' : 'question',
         showCancelButton: true,
-        confirmButtonColor: '#012970',
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No',
+        confirmButtonColor: danger ? '#be123c' : '#117c7a',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Yes, continue',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
     }).then((result) => {
         if (result.isConfirmed) {
             form.dataset.confirmed = '1';

@@ -1,0 +1,8 @@
+@props(['caption' => null])
+<div {{ $attributes->merge(['class' => 'overflow-x-auto']) }}>
+    <table class="hss-table">
+        @if ($caption)<caption class="sr-only">{{ $caption }}</caption>@endif
+        @isset($head)<thead><tr>{{ $head }}</tr></thead>@endisset
+        <tbody>{{ $slot }}</tbody>
+    </table>
+</div>
