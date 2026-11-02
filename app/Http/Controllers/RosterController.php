@@ -74,6 +74,7 @@ class RosterController extends Controller
             return [
                 'id' => $assignment->id,
                 'title' => $assignment->label(),
+                'extendedProps' => ['short' => $assignment->shortLabel()],
                 'start' => $assignment->date->toDateString(),
                 'allDay' => true,
                 'backgroundColor' => $this->eventColour($assignment),

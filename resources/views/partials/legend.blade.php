@@ -1,6 +1,6 @@
-<ul class="flex flex-wrap gap-3 text-sm" aria-label="Shift colours">
-    <li class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded-sm" style="background:#8da399"></span> Morning</li>
-    <li class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded-sm" style="background:#d65302"></span> Evening</li>
-    <li class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded-sm" style="background:#311F62"></span> Night</li>
-    <li class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded-sm bg-[#012970]"></span> On call / ward</li>
+<ul class="flex flex-wrap items-center gap-2 text-xs font-medium" aria-label="Shift colours">
+    <li class="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-shift-morning" aria-hidden="true"></span>Morning</li>
+    <li class="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-shift-evening" aria-hidden="true"></span>Evening</li>
+    <li class="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-shift-night" aria-hidden="true"></span>Night</li>
+    <li class="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-hss-navy" aria-hidden="true"></span>On call / ward</li>
 </ul>

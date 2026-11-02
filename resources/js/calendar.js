@@ -24,6 +24,21 @@ if (element) {
             listWeek: { buttonText: 'list' },
         },
         resourceAreaHeaderContent: 'Doctors',
+        resourceAreaWidth: mobile ? '40%' : '210px',
+        // Each timeline row is one doctor, so the chip only needs the duty; the
+        // full "Dr X · Duty" label stays in the tooltip and the other views.
+        slotMinWidth: 64,
+        eventContent(arg) {
+            if (arg.view.type !== 'resourceTimelineMonth') return true;
+            const chip = document.createElement('span');
+            chip.className = 'hss-tl-chip';
+            chip.textContent = arg.event.extendedProps.short || arg.event.title;
+            return { domNodes: [chip] };
+        },
+        eventDidMount(info) {
+            info.el.setAttribute('title', info.event.title);
+            info.el.setAttribute('aria-label', info.event.title + ', ' + info.event.start.toLocaleDateString('en-MY', { day: 'numeric', month: 'long' }));
+        },
         resources: element.dataset.resourcesUrl,
         events: element.dataset.eventsUrl,
         editable: element.dataset.editable === '1',

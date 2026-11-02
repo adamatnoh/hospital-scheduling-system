@@ -75,4 +75,16 @@ class ScheduleAssignment extends Model
             AssignmentType::Shift => $doctor.' · '.$this->shift?->value,
         };
     }
+
+    /**
+     * The duty without the doctor's name, for the timeline where each row is already one doctor.
+     */
+    public function shortLabel(): string
+    {
+        return match ($this->type) {
+            AssignmentType::OnCall => 'On call',
+            AssignmentType::Ward => $this->ward->name ?? 'Ward',
+            AssignmentType::Shift => $this->shift?->value ?? 'Shift',
+        };
+    }
 }
