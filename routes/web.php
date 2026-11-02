@@ -1,113 +1,84 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GeneratorController;
+use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\IcalController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\RosterController;
+use App\Http\Controllers\StaffController;
+use App\Models\AuditLog;
+use App\Models\Department;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
-// Register routes
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
-    } else {
-        return redirect()->route('login');
     }
+
+    return view('landing');
+})->name('landing');
+
+Route::view('/unauthorized', 'unauthorized')->name('unauthorized');
+
+Route::get('/ical/{token}', [IcalController::class, 'show'])->name('ical.feed');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('/department/{type}', [RosterController::class, 'department'])->name('calendar.department');
+    Route::get('/department-oncall', fn () => redirect()->route('calendar.department', 'on_call'))->name('calendar.depschedule');
+    Route::get('/department-ward', fn () => redirect()->route('calendar.department', 'ward'))->name('calendar.view-ward');
+    Route::get('/department-shift', fn () => redirect()->route('calendar.department', 'shift'))->name('calendar.view-shift');
+    Route::get('/your-schedule', [RosterController::class, 'yours'])->name('calendar.yourschedule');
+    Route::get('/calendar/events', [RosterController::class, 'events'])->name('calendar.events');
+    Route::get('/calendar/resources', [RosterController::class, 'resources'])->name('calendar.resources');
+    Route::patch('/assignments/{assignment}', [RosterController::class, 'update'])->name('assignments.update');
+    Route::get('/schedules/{type}/export', [RosterController::class, 'export'])->name('schedules.export');
+    Route::get('/ical', [IcalController::class, 'download'])->name('ical.download');
+
+    Route::middleware('role:scheduler,regular,admin')->group(function () {
+        Route::get('/leave', [ApplicationController::class, 'leave'])->name('calendar.leave');
+        Route::post('/leave', [ApplicationController::class, 'store'])->name('calendar.storeLeave');
+        Route::get('/oncall', [ApplicationController::class, 'onCall'])->name('calendar.oncall');
+        Route::post('/oncall', [ApplicationController::class, 'store'])->name('calendar.storeOnCall');
+        Route::get('/history', [ApplicationController::class, 'history'])->name('calendar.history');
+        Route::get('/swaps', [ApplicationController::class, 'swapForm'])->name('swaps.create');
+        Route::post('/swaps', [ApplicationController::class, 'storeSwap'])->name('swaps.store');
+    });
+
+    Route::middleware('role:scheduler,admin')->group(function () {
+        Route::get('/generate/{type}', [GeneratorController::class, 'show'])->name('generate.show');
+        Route::get('/create-oncall', fn () => redirect()->route('generate.show', 'on_call'))->name('create-oncall');
+        Route::get('/create-ward', fn () => redirect()->route('generate.show', 'ward'))->name('create-ward');
+        Route::get('/create-shift', fn () => redirect()->route('generate.show', 'shift'))->name('create-shift');
+        Route::post('/generate/{department}', [GeneratorController::class, 'store'])->name('generate.store');
+        Route::post('/runs/{run}/publish', [GeneratorController::class, 'publish'])->name('runs.publish');
+
+        Route::get('/review', [ReviewController::class, 'index'])->name('review');
+        Route::get('/review-history', [ReviewController::class, 'history'])->name('reviewHistory');
+        Route::post('/review/{scheduleRequest}', [ReviewController::class, 'decide'])->name('review.decide');
+
+        Route::get('/rules/{department}', function (Department $department) {
+            return view('roster.rules', ['department' => $department]);
+        })->name('rules.show');
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/staff', [StaffController::class, 'index'])->name('manageStaff');
+        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+        Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');
+        Route::delete('/staff/{user}', [StaffController::class, 'destroy'])->name('staff.destroy');
+
+        Route::get('/holidays', [HolidayController::class, 'index'])->name('holidays.index');
+        Route::post('/holidays', [HolidayController::class, 'store'])->name('holidays.store');
+        Route::delete('/holidays/{holiday}', [HolidayController::class, 'destroy'])->name('holidays.destroy');
+
+        Route::get('/audit', function () {
+            return view('audit.index', [
+                'logs' => AuditLog::query()->with('user')->latest('id')->limit(150)->get(),
+            ]);
+        })->name('audit.index');
+    });
 });
-
-// Homepage Medicio template routes
-Route::get('/homepage', function () {
-    return view('homepage');
-});
-
-// Assigning staff routes
-Route::get('/assign', [App\Http\Controllers\AssignController::class, 'assign'])->name('assign');
-// Create On Call Schedule routes
-Route::get('/create-oncall', [App\Http\Controllers\AssignController::class, 'oncall'])->name('create-oncall');
-// Update On Call Schedule routes
-Route::patch('/update-oncall/{id}', [App\Http\Controllers\AssignController::class, 'update'])->name('assign.update');
-// Delete On Call Schedule routes
-Route::delete('/delete-oncall/{id}', [App\Http\Controllers\AssignController::class, 'delete'])->name('assign.delete');
-
-// Assigning Ward staff routes
-Route::get('/assign-ward', [App\Http\Controllers\WardController::class, 'assignWard'])->name('assign-ward');
-// Create Ward Schedule routes
-Route::get('/create-ward', [App\Http\Controllers\WardController::class, 'ward'])->name('create-ward');
-// Update Ward Schedule routes
-Route::patch('/update-ward/{id}', [App\Http\Controllers\WardController::class, 'update'])->name('ward.update');
-// Delete Ward Schedule routes
-Route::delete('/delete-ward/{id}', [App\Http\Controllers\WardController::class, 'delete'])->name('ward.delete');
-
-// Assigning Shift staff routes
-Route::get('/assign-shift', [App\Http\Controllers\ShiftController::class, 'assignShift'])->name('assign-shift');
-// Create Shift Schedule routes
-Route::get('/create-shift', [App\Http\Controllers\ShiftController::class, 'shift'])->name('create-shift');
-// Update Shift Schedule routes
-Route::patch('/update-shift/{id}', [App\Http\Controllers\ShiftController::class, 'update'])->name('shift.update');
-// Delete Shift Schedule routes
-Route::delete('/delete-shift/{id}', [App\Http\Controllers\ShiftController::class, 'delete'])->name('shift.delete');
-
-// Leave Application routes
-Route::get('/leave', [App\Http\Controllers\CalendarController::class, 'leave'])->name('calendar.leave');
-// On Call Application routes
-Route::get('/oncall', [App\Http\Controllers\CalendarController::class, 'oncall'])->name('calendar.oncall');
-// Store Leave Application routes
-Route::post('/leave', [App\Http\Controllers\CalendarController::class, 'storel'])->name('calendar.storeLeave');
-// Store On Call Application routes
-Route::post('/oncall', [App\Http\Controllers\CalendarController::class, 'storeo'])->name('calendar.storeOnCall');
-// History Application routes
-Route::get('/history', [App\Http\Controllers\CalendarController::class, 'history'])->name('calendar.history');
-// Review Changes route
-Route::get('/review', [App\Http\Controllers\CalendarController::class, 'review'])->name('review');
-// Changes History route
-Route::get('/review-history', [App\Http\Controllers\CalendarController::class, 'reviewHistory'])->name('reviewHistory');
-// Update Review Changes Leave route
-Route::patch('/review/update-leave/{id}', [App\Http\Controllers\CalendarController::class, 'updateReviewLeave'])->name('updateReviewLeave');
-// Update Review Changes On Call route
-Route::patch('/review/update-oncall/{id}', [App\Http\Controllers\CalendarController::class, 'updateReviewOnCall'])->name('updateReviewOnCall');
-// Update Review Changes Status Leave route
-Route::patch('/review/update-status-leave/{id}', [App\Http\Controllers\CalendarController::class, 'updateStatusLeave'])->name('updateStatusLeave');
-// Update Review Changes Status On Call route
-Route::patch('/review/update-status-oncall/{id}', [App\Http\Controllers\CalendarController::class, 'updateStatusOnCall'])->name('updateStatusOnCall');
-
-// Department On Call Schedule routes
-Route::get('/department-oncall', [App\Http\Controllers\AssignController::class, 'viewOnCall'])->name('calendar.depschedule');
-// Department Ward Schedule routes
-Route::get('/department-ward', [App\Http\Controllers\WardController::class, 'viewWard'])->name('calendar.view-ward');
-// Department Ward Schedule routes
-Route::get('/department-shift', [App\Http\Controllers\ShiftController::class, 'viewShift'])->name('calendar.view-shift');
-// Your Schedule routes
-Route::get('/your-schedule', [App\Http\Controllers\JoinTableController::class, 'yourschedule'])->name('calendar.yourschedule');
-
-// Admin Manage Staff route
-Route::get('/staff', [App\Http\Controllers\AdminController::class, 'manageStaff'])->name('manageStaff');
-// Admin Manage Staff Update route
-Route::post('/staff/update', [App\Http\Controllers\AdminController::class, 'updateStaff'])->name('updateStaff');
-// Admin Get Specific staff route
-Route::get('/getStaff/{id}', [App\Http\Controllers\AdminController::class, 'getStaff'])->name('getStaff');
-// Admin View Add Staff route
-Route::get('/add-staff', function () {return view('addStaff');})->name('staff-form');
-// Admin Add Staff route
-Route::post('/adding', [App\Http\Controllers\AdminController::class, 'addStaff'])->name('addStaff');
-// Admin Delete Staff routes
-Route::delete('/deleteStaff/{id}', [App\Http\Controllers\AdminController::class, 'deleteStaff'])->name('deleteStaff');
-
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified'
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});
-
-// For Unauthorized role
-Route::get('/unauthorized', function () { return view('unauthorized'); })->name('unauthorized');

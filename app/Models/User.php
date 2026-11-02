@@ -1,64 +1,93 @@
 <?php
-//This is User Model
-    namespace App\Models;
 
-    use Illuminate\Contracts\Auth\MustVerifyEmail;
-    use Illuminate\Database\Eloquent\Factories\HasFactory;
-    use Illuminate\Foundation\Auth\User as Authenticatable;
-    use Illuminate\Notifications\Notifiable;
-    use Laravel\Fortify\TwoFactorAuthenticatable;
-    use Laravel\Jetstream\HasProfilePhoto;
-    use Laravel\Sanctum\HasApiTokens;
+namespace App\Models;
 
-    class User extends Authenticatable
+use App\Enums\Role;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
+
+/**
+ * @property Role $role
+ * @property int|null $department_id
+ * @property string|null $calendar_token
+ */
+class User extends Authenticatable
+{
+    use HasApiTokens;
+
+    /** @use HasFactory<UserFactory> */
+    use HasFactory;
+
+    use Notifiable;
+    use TwoFactorAuthenticatable;
+
+    protected $fillable = [
+        'name',
+        'role',
+        'email',
+        'department_id',
+        'password',
+        'calendar_token',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
+        'calendar_token',
+    ];
+
+    protected function casts(): array
     {
-        use HasApiTokens;
-        use HasFactory;
-        use HasProfilePhoto;
-        use Notifiable;
-        use TwoFactorAuthenticatable;
-
-        /**
-         * The attributes that are mass assignable.
-         *
-         * @var array<int, string>
-         */
-        protected $fillable = [
-            'name',
-            'role',
-            'email',
-            'department',
-            'password',
-        ];
-
-        /**
-         * The attributes that should be hidden for serialization.
-         *
-         * @var array<int, string>
-         */
-        protected $hidden = [
-            'password',
-            'remember_token',
-            'two_factor_recovery_codes',
-            'two_factor_secret',
-        ];
-
-        /**
-         * The attributes that should be cast.
-         *
-         * @var array<string, string>
-         */
-        protected $casts = [
+        return [
             'email_verified_at' => 'datetime',
-        ];
-
-        /**
-         * The accessors to append to the model's array form.
-         *
-         * @var array<int, string>
-         */
-        protected $appends = [
-            'profile_photo_url',
+            'password' => 'hashed',
+            'role' => Role::class,
         ];
     }
-?>
+
+    /** @return BelongsTo<Department, $this> */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    /** @return HasMany<ScheduleRequest, $this> */
+    public function requests(): HasMany
+    {
+        return $this->hasMany(ScheduleRequest::class);
+    }
+
+    /** @return HasMany<ScheduleAssignment, $this> */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(ScheduleAssignment::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === Role::Admin;
+    }
+
+    public function isScheduler(): bool
+    {
+        return $this->role === Role::Scheduler;
+    }
+
+    public function displayName(): string
+    {
+        return $this->role?->isDoctor() ? 'Dr '.$this->name : $this->name;
+    }
+
+    public function sharesDepartment(?int $departmentId): bool
+    {
+        return $this->isAdmin() || ($departmentId !== null && $this->department_id === $departmentId);
+    }
+}
