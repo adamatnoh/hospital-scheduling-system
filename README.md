@@ -75,7 +75,7 @@ npm run build
 npx playwright test
 ```
 
-Playwright expects the app on `http://127.0.0.1:8000` with the demo seeder already applied. `php artisan serve` can already be running; the config reuses it.
+Playwright expects the app on `http://127.0.0.1:8001` (override with `PLAYWRIGHT_BASE_URL`) with the demo seeder already applied. `php artisan serve --port=8001` can already be running; the config reuses it, otherwise it starts one on that host and port. Set `PLAYWRIGHT_SHOTS` to save the screenshots somewhere other than `docs/screenshots`.
 
 A Sentry DSN can be set as `SENTRY_LARAVEL_DSN`. The package is not installed. Add `sentry/sentry-laravel` when you want the events exported.
 

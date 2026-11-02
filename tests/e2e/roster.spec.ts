@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 import fs from 'node:fs';
 
-const shot = 'docs/screenshots';
+// Screenshots land in docs/screenshots unless PLAYWRIGHT_SHOTS points elsewhere.
+const shot = process.env.PLAYWRIGHT_SHOTS ?? 'docs/screenshots';
 
 test.beforeAll(() => {
     fs.mkdirSync(shot, { recursive: true });
@@ -9,8 +10,8 @@ test.beforeAll(() => {
 
 async function login(page: import('@playwright/test').Page, email: string) {
     await page.goto('/login');
-    await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password').fill('password');
+    await page.getByLabel('Email', { exact: true }).fill(email);
+    await page.getByLabel('Password', { exact: true }).fill('password');
     await page.getByRole('button', { name: 'Log in' }).click();
     await expect(page).toHaveURL(/dashboard/);
 }
@@ -21,11 +22,11 @@ test('a doctor applies, a scheduler approves, and the calendar shows the departm
     await page.screenshot({ path: `${shot}/landing.png`, fullPage: true });
 
     await page.goto('/login');
-    await expect(page.getByRole('heading', { name: 'HSS | Login' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Sign in to HSS' })).toBeVisible();
     await page.screenshot({ path: `${shot}/login.png`, fullPage: true });
 
     await login(page, 'doctor@hss.test');
-    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Dashboard', level: 1 })).toBeVisible();
     await page.screenshot({ path: `${shot}/dashboard-doctor.png`, fullPage: true });
 
     await page.goto('/leave');
@@ -42,7 +43,7 @@ test('a doctor applies, a scheduler approves, and the calendar shows the departm
     await page.screenshot({ path: `${shot}/history.png`, fullPage: true });
 
     await page.goto('/your-schedule');
-    await expect(page.getByRole('heading', { name: 'Your Schedule' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Your Schedule', level: 1 })).toBeVisible();
     await page.screenshot({ path: `${shot}/your-schedule.png`, fullPage: true });
 
     await page.getByRole('button', { name: 'Log out' }).click();
@@ -53,7 +54,7 @@ test('a doctor applies, a scheduler approves, and the calendar shows the departm
     await page.screenshot({ path: `${shot}/department-calendar.png`, fullPage: true });
 
     await page.goto('/generate/on_call');
-    await expect(page.getByRole('heading', { name: /On Call/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /On Call/, level: 1 })).toBeVisible();
     await page.screenshot({ path: `${shot}/generator-preview.png`, fullPage: true });
 
     await page.goto('/review');
@@ -70,7 +71,7 @@ test('a doctor applies, a scheduler approves, and the calendar shows the departm
 test('each role can open its home', async ({ page }) => {
     await login(page, 'admin@hss.test');
     await page.goto('/staff');
-    await expect(page.getByRole('heading', { name: 'Staff' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Staff', level: 1 })).toBeVisible();
     await page.screenshot({ path: `${shot}/staff.png`, fullPage: true });
     await page.getByRole('button', { name: 'Log out' }).click();
 
