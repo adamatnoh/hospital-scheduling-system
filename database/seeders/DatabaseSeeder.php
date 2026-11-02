@@ -132,6 +132,8 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        $this->call(AnnouncementSeeder::class);
+
         unset($emergencyScheduler);
     }
 

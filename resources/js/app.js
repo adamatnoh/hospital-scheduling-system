@@ -1,6 +1,7 @@
 import './bootstrap';
 import Swal from 'sweetalert2';
 import './calendar';
+import './carousel';
 
 document.addEventListener('submit', (event) => {
     const form = event.target;

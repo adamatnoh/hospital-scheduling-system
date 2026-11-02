@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeneratorController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\IcalController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RosterController;
 use App\Http\Controllers\StaffController;
+use App\Models\Announcement;
 use App\Models\AuditLog;
 use App\Models\Department;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +19,9 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
 
-    return view('landing');
+    return view('landing', [
+        'announcements' => Announcement::query()->visible()->get(),
+    ]);
 })->name('landing');
 
 Route::view('/unauthorized', 'unauthorized')->name('unauthorized');
@@ -74,6 +78,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/holidays', [HolidayController::class, 'index'])->name('holidays.index');
         Route::post('/holidays', [HolidayController::class, 'store'])->name('holidays.store');
         Route::delete('/holidays/{holiday}', [HolidayController::class, 'destroy'])->name('holidays.destroy');
+
+        Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+        Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+        Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::get('/announcements/{announcement}/edit', [AnnouncementController::class, 'edit'])->name('announcements.edit');
+        Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update');
+        Route::patch('/announcements/{announcement}/toggle', [AnnouncementController::class, 'toggle'])->name('announcements.toggle');
+        Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
         Route::get('/audit', function () {
             return view('audit.index', [

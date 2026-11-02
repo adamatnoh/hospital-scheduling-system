@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Services\DashboardStats;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -12,6 +13,7 @@ class DashboardController extends Controller
     {
         return view('dashboard', [
             'stats' => $stats->for($request->user()),
+            'announcements' => Announcement::query()->visible()->get(),
         ]);
     }
 }
