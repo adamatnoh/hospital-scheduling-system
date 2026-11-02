@@ -38,40 +38,47 @@ class CalendarController extends Controller
 
     public function storel (Request $request)
     {
-        $request->validate([
-            'title' => 'required | string'
-        ]);
+        $data = $this->validatedApplication($request);
 
         $schedule = LeaveApplication::create([
-            'title' => $request->title,
-            'user_id' => $request->user_id,
-            'department' => $request->department,
-            'reason' => $request->reason,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'status' => $request->status,
+            'title' => $request->user()->name,
+            'user_id' => $request->user()->id,
+            'department' => $request->user()->department,
+            'reason' => $data['reason'],
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
+            'status' => 'Pending',
+            'rejection' => '',
         ]);
 
-        return response()->json ($schedule);
+        return response()->json($schedule);
     }
 
     public function storeo (Request $request)
     {
-        $request->validate([
-            'title' => 'required | string'
-        ]);
+        $data = $this->validatedApplication($request);
 
         $schedule = OnCallApplication::create([
-            'title' => $request->title,
-            'user_id' => $request->user_id,
-            'department' => $request->department,
-            'reason' => $request->reason,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'status' => $request->status,
+            'title' => $request->user()->name,
+            'user_id' => $request->user()->id,
+            'department' => $request->user()->department,
+            'reason' => $data['reason'],
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
+            'status' => 'Pending',
+            'rejection' => '',
         ]);
 
-        return response()->json ($schedule);
+        return response()->json($schedule);
+    }
+
+    private function validatedApplication(Request $request): array
+    {
+        return $request->validate([
+            'reason' => ['required', 'string', 'max:1000'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+        ]);
     }
 
     public function history (Request $request)
@@ -105,12 +112,16 @@ class CalendarController extends Controller
 
     public function review (Request $request)
     {
+        $department = $request->user()->department;
+
         $leaves = LeaveApplication::select('id', 'start_date', 'end_date', 'reason', 'status', 'title', 'rejection')
             ->where('status', 'Pending')
+            ->where('department', $department)
             ->get();
 
         $onCalls = OnCallApplication::select('id', 'start_date', 'end_date', 'reason', 'status', 'title', 'rejection')
             ->where('status', 'Pending')
+            ->where('department', $department)
             ->get();
 
         $leaves = $leaves->map(function ($leave) {
@@ -134,12 +145,16 @@ class CalendarController extends Controller
 
     public function reviewHistory (Request $request)
     {
+        $department = $request->user()->department;
+
         $leaves = LeaveApplication::select('id', 'title', 'department', 'start_date', 'end_date', 'reason', 'status', 'rejection')
             ->where('status', '!=', 'Pending')
+            ->where('department', $department)
             ->get();
 
         $onCalls = OnCallApplication::select('id', 'title', 'department', 'start_date', 'end_date', 'reason', 'status', 'rejection')
             ->where('status', '!=', 'Pending')
+            ->where('department', $department)
             ->get();
 
         $leaves = $leaves->map(function ($leave) {
@@ -163,66 +178,47 @@ class CalendarController extends Controller
 
     public function updateReviewLeave (Request $request, $id)
     {
-        $schedule = LeaveApplication::find($id);
-        if(! $schedule) {
-            return response()->json ([
-                'error' => 'Unable to locate the event'
-            ], 404);
-        }
-
-        $schedule->update([
-            'status' => $request->status,
-            'rejection' => $request->rejection,
-        ]);
-
-        return response()->json ($schedule);
+        return $this->decide($request, LeaveApplication::class, $id, true);
     }
 
     public function updateReviewOnCall (Request $request, $id)
     {
-        $schedule = OnCallApplication::find($id);
-        if(! $schedule) {
-            return response()->json ([
-                'error' => 'Unable to locate the event'
-            ], 404);
-        }
-
-        $schedule->update([
-            'status' => $request->status,
-            'rejection' => $request->rejection,
-        ]);
-
-        return response()->json ($schedule);
+        return $this->decide($request, OnCallApplication::class, $id, true);
     }
 
     public function updateStatusLeave (Request $request, $id)
     {
-        $schedule = LeaveApplication::find($id);
-        if(! $schedule) {
-            return response()->json ([
-                'error' => 'Unable to locate the event'
-            ], 404);
-        }
-
-        $schedule->update([
-            'status' => $request->status,
-        ]);
-
-        return response()->json ($schedule);
+        return $this->decide($request, LeaveApplication::class, $id, false);
     }
+
     public function updateStatusOnCall (Request $request, $id)
     {
-        $schedule = OnCallApplication::find($id);
-        if(! $schedule) {
-            return response()->json ([
-                'error' => 'Unable to locate the event'
+        return $this->decide($request, OnCallApplication::class, $id, false);
+    }
+
+    private function decide(Request $request, string $model, $id, bool $withReason)
+    {
+        $rules = ['status' => ['required', 'in:Yes,No']];
+        if ($withReason) {
+            $rules['rejection'] = ['required_if:status,No', 'nullable', 'string', 'max:1000'];
+        }
+        $data = $request->validate($rules);
+
+        $schedule = $model::query()
+            ->where('department', $request->user()->department)
+            ->find($id);
+
+        if (! $schedule) {
+            return response()->json([
+                'error' => 'Unable to locate the request',
             ], 404);
         }
 
         $schedule->update([
-            'status' => $request->status,
+            'status' => $data['status'],
+            'rejection' => $data['status'] === 'No' ? ($data['rejection'] ?? '') : '',
         ]);
 
-        return response()->json ($schedule);
+        return response()->json($schedule);
     }
 }

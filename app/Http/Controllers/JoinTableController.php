@@ -14,11 +14,11 @@ class JoinTableController extends Controller
     public function yourschedule()
     {
         $events = array();
-        $username = Auth::user()->name;
+        $userId = Auth::id();
 
         $onCallSchedule = DB::table('assigns')
             ->select('title', 'start_date', 'end_date')
-            ->where('title', $username)
+            ->where('user_id', $userId)
             ->get();
 
         foreach($onCallSchedule as $schedule) {
@@ -32,7 +32,7 @@ class JoinTableController extends Controller
         
         $wardSchedule = DB::table('assign_wards')
             ->select('name', 'start_date', 'end_date', 'ward')
-            ->where('name', $username)
+            ->where('user_id', $userId)
             ->get();
         
         foreach($wardSchedule as $schedule) {
@@ -46,7 +46,7 @@ class JoinTableController extends Controller
 
         $shiftSchedule = DB::table('assign_shifts')
             ->select('name', 'start_date', 'end_date', 'shift')
-            ->where('name', $username)
+            ->where('user_id', $userId)
             ->get(); 
 
         foreach($shiftSchedule as $schedule) {

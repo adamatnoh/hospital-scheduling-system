@@ -10,7 +10,7 @@ use App\Models\DepartmentSchedule;
 use App\Models\OnCallApplication;
 use App\Models\Assign;
 use App\Models\AssignWard;
-use App\Models\Ward;
+use App\Models\Wards;
 
 class WardController extends Controller
 {
@@ -33,7 +33,7 @@ class WardController extends Controller
             ->where('department', $userDepartment)
             ->get();
     
-        AssignWard::truncate();
+        AssignWard::where('department', $userDepartment)->delete();
     
         $startDate = Carbon::now()->startOfMonth();
         $endDate = Carbon::now()->endOfMonth();
@@ -85,7 +85,7 @@ class WardController extends Controller
         }
     
         $events = array();
-        $schedule = AssignWard::all();
+        $schedule = AssignWard::where('department', Auth::user()->department)->get();
         $wardColors = array(); // Array to store ward colors
         $i = 1;
 
@@ -123,7 +123,7 @@ class WardController extends Controller
     public function ward()
     {
         $events = array();
-        $schedule = AssignWard::all();
+        $schedule = AssignWard::where('department', Auth::user()->department)->get();
         $wardColors = array(); // Array to store ward colors
         $i = 1;
 
@@ -150,7 +150,7 @@ class WardController extends Controller
     public function viewWard()
     {
         $events = array();
-        $schedule = AssignWard::all();
+        $schedule = AssignWard::where('department', Auth::user()->department)->get();
         $wardColors = array(); // Array to store ward colors
         $i = 1;
 
@@ -176,22 +176,26 @@ class WardController extends Controller
 
     public function update(Request $request, $id)
     {
-        $schedule = AssignWard::find($id);
+        $data = $request->validate([
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+        ]);
+        $schedule = AssignWard::where('department', Auth::user()->department)->find($id);
         if(! $schedule) {
             return response()->json ([
                 'error' => 'Unable to locate the event'
             ], 404);
         }
         $schedule->update ([
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
         ]);
         return response()->json ('Event updated');
     }
 
     public function delete(Request $request, $id)
     {
-        $schedule = AssignWard::find($id);
+        $schedule = AssignWard::where('department', Auth::user()->department)->find($id);
         if(! $schedule) {
             return response()->json ([
                 'error' => 'Unable to locate the event'

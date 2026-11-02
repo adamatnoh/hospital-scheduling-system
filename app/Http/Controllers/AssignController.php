@@ -40,7 +40,7 @@ class AssignController extends Controller
                 })
             ->get();
         
-        Assign::truncate();
+        Assign::where('department', $userDepartment)->delete();
 
         $usedDates = [];
         $oncallDates = [];
@@ -158,7 +158,7 @@ class AssignController extends Controller
         }
 
         $events = [];
-        $schedule = Assign::all();
+        $schedule = Assign::where('department', $userDepartment)->get();
         foreach ($schedule as $schedule) {
             $events[] = [
                 'id' => $schedule->id,
@@ -186,7 +186,7 @@ class AssignController extends Controller
     public function oncall()
     {
         $events = array();
-        $schedule = Assign::all();
+        $schedule = Assign::where('department', Auth::user()->department)->get();
         foreach($schedule as $schedule) {
             $events[] = [
                 'id' => $schedule->id,
@@ -203,7 +203,7 @@ class AssignController extends Controller
     public function ViewOnCall()
     {
         $events = array();
-        $schedule = Assign::all();
+        $schedule = Assign::where('department', Auth::user()->department)->get();
         foreach($schedule as $schedule) {
             $events[] = [
                 'id' => $schedule->id,
@@ -219,22 +219,26 @@ class AssignController extends Controller
 
     public function update(Request $request, $id)
     {
-        $schedule = Assign::find($id);
+        $data = $request->validate([
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+        ]);
+        $schedule = Assign::where('department', Auth::user()->department)->find($id);
         if(! $schedule) {
             return response()->json ([
                 'error' => 'Unable to locate the event'
             ], 404);
         }
         $schedule->update ([
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
         ]);
         return response()->json ('Event updated');
     }
 
     public function delete(Request $request, $id)
     {
-        $schedule = Assign::find($id);
+        $schedule = Assign::where('department', Auth::user()->department)->find($id);
         if(! $schedule) {
             return response()->json ([
                 'error' => 'Unable to locate the event'

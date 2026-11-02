@@ -2,85 +2,87 @@
 // THIS IS ADMIN MANAGE STAFF ACCOUNT CONTROLLER
 namespace App\Http\Controllers;
 
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
     public function manageStaff (Request $request)
     {
-        $staffs = DB::table('users')
-        ->select('id', 'role', 'name', 'email', 'department')
-        ->where('role', '!=', 'admin')
-        ->get();
+        $staffs = User::query()
+            ->select('id', 'role', 'name', 'email', 'department')
+            ->where('role', '!=', 'admin')
+            ->orderBy('name')
+            ->get();
 
         return view('manageStaff', compact('staffs'));
     }
 
     public function updateStaff(Request $request)
     {
-        $user_id = $request->input('user_id');
-        $name = $request->input('title');
-        $department = $request->input('department');
-        $role = $request->input('role');
-        $email = $request->input('email');
+        $data = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'title' => ['required', 'string', 'max:255'],
+            'department' => ['required', 'string', 'in:Orthopedics,Emergency'],
+            'role' => ['required', 'string', 'in:regular,scheduler'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($request->input('user_id'))],
+        ]);
 
-        DB::table('users')
-            ->where('id', $user_id)
-            ->update([
-                'name' => $name,
-                'department' => $department,
-                'role' => $role,
-                'email' => $email
-            ]);
-
-            // echo "<script>alert('Success! Staff details have been successfully updated!');</script>";
+        $staff = User::query()->where('role', '!=', 'admin')->findOrFail($data['user_id']);
+        $staff->update([
+            'name' => $data['title'],
+            'department' => $data['department'],
+            'role' => $data['role'],
+            'email' => $data['email'],
+        ]);
 
         return redirect()->route('manageStaff');
     }
 
     public function getStaff($id)
     {
-        $staff = DB::table('users')->find($id);
+        $staff = User::query()
+            ->select('id', 'role', 'name', 'email', 'department')
+            ->where('role', '!=', 'admin')
+            ->findOrFail($id);
 
         return response()->json($staff);
     }
 
     public function deleteStaff(Request $request, $id)
     {
-        $staff = User::find($id);
-        if(! $staff) {
-            return response()->json ([
-                'error' => 'Unable to locate the event'
+        $staff = User::query()->where('role', '!=', 'admin')->find($id);
+        if (! $staff || $staff->id === Auth::id()) {
+            return response()->json([
+                'error' => 'Unable to locate the staff account',
             ], 404);
         }
         $staff->delete();
 
-        return response()->json($staff);
+        return response()->json(['id' => $staff->id, 'name' => $staff->name]);
     }
 
     public function addStaff(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'password' => 'required|string',
-            // Add other validation rules for your fields
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'min:8'],
+            'department' => ['required', 'string', 'in:Orthopedics,Emergency'],
+            'role' => ['required', 'string', 'in:regular,scheduler'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
         ]);
 
-        $hashedPassword = Hash::make($request->input('password'));
-
-        $staff = DB::table('users')->insert([
-            'name' => $request->input('name'),
-            'department' => $request->input('department'),
-            'role' => $request->input('role'),
-            'email' => $request->input('email'),
-            'password' => $hashedPassword,
+        $staff = User::create([
+            'name' => $data['name'],
+            'department' => $data['department'],
+            'role' => $data['role'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
         ]);
 
-        return response()->json($staff);
+        return response()->json($staff->only(['id', 'name', 'email', 'role', 'department']));
     }
 }

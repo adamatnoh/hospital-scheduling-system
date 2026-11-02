@@ -26,7 +26,7 @@ class ShiftController extends Controller
             ->where('department', $userDepartment)
             ->get();
 
-        AssignShift::truncate();
+        AssignShift::where('department', $userDepartment)->delete();
 
         $shifts = ['Morning', 'Evening', 'Night'];
         $startDate = Carbon::now()->startOfMonth();
@@ -86,7 +86,7 @@ class ShiftController extends Controller
         }
 
         $events = array();
-        $schedule = AssignShift::all();
+        $schedule = AssignShift::where('department', Auth::user()->department)->get();
         $shiftColors = [
             'Morning' => '#8da399', // Define color for Morning shift
             'Evening' => '#d65302', // Define color for Evening shift
@@ -131,7 +131,7 @@ class ShiftController extends Controller
     public function shift()
     {
         $events = array();
-        $schedule = AssignShift::all();
+        $schedule = AssignShift::where('department', Auth::user()->department)->get();
         $shiftColors = array(
             'Morning' => '#8da399', // Define color for Morning shift
             'Evening' => '#d65302', // Define color for Evening shift
@@ -165,7 +165,7 @@ class ShiftController extends Controller
     public function ViewShift()
     {
         $events = array();
-        $schedule = AssignShift::all();
+        $schedule = AssignShift::where('department', Auth::user()->department)->get();
         $shiftColors = array(
             'Morning' => '#8da399', // Define color for Morning shift
             'Evening' => '#d65302', // Define color for Evening shift
@@ -198,22 +198,26 @@ class ShiftController extends Controller
 
     public function update(Request $request, $id)
     {
-        $schedule = AssignShift::find($id);
+        $data = $request->validate([
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+        ]);
+        $schedule = AssignShift::where('department', Auth::user()->department)->find($id);
         if(! $schedule) {
             return response()->json ([
                 'error' => 'Unable to locate the event'
             ], 404);
         }
         $schedule->update ([
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
         ]);
         return response()->json ('Event updated');
     }
 
     public function delete(Request $request, $id)
     {
-        $schedule = Assign::find($id);
+        $schedule = AssignShift::where('department', Auth::user()->department)->find($id);
         if(! $schedule) {
             return response()->json ([
                 'error' => 'Unable to locate the event'

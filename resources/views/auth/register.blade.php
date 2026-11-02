@@ -25,10 +25,6 @@
                     <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Enter your username" />
                 </div>
 
-                <div>
-                    <x-input id="role" type="hidden" name="role" value="regular" />
-               </div>
-
                 {{-- <div class="mt-4">
                     <x-label for="department" value="{{ __('Department') }}" /><br>
                     <x-input id="department" class="block mt-1 w-full" type="text" name="department" :value="old('department')" required autofocus autocomplete="department" placeholder="Enter your department" />
