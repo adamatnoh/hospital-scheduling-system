@@ -1,22 +1,16 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AssignController;
-use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\JoinTableController;
-use App\Http\Controllers\ShiftController;
-use App\Http\Controllers\WardController;
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GeneratorController;
+use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\IcalController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\RosterController;
+use App\Http\Controllers\StaffController;
+use App\Models\AuditLog;
+use App\Models\Department;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Public pages stay open. Every roster, request and staff route requires
-| an authenticated user, and mutating actions are limited by role.
-|
-*/
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -26,56 +20,67 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::view('/homepage', 'homepage')->name('homepage');
+Route::view('/welcome', 'landing')->name('landing');
 
 Route::view('/unauthorized', 'unauthorized')->name('unauthorized');
 
+Route::get('/ical/{token}', [IcalController::class, 'show'])->name('ical.feed');
+
 Route::middleware('auth')->group(function () {
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    Route::middleware('role:scheduler,regular')->group(function () {
-        Route::get('/department-oncall', [AssignController::class, 'viewOnCall'])->name('calendar.depschedule');
-        Route::get('/department-ward', [WardController::class, 'viewWard'])->name('calendar.view-ward');
-        Route::get('/department-shift', [ShiftController::class, 'viewShift'])->name('calendar.view-shift');
-        Route::get('/your-schedule', [JoinTableController::class, 'yourschedule'])->name('calendar.yourschedule');
+    Route::get('/department/{type}', [RosterController::class, 'department'])->name('calendar.department');
+    Route::get('/department-oncall', fn () => redirect()->route('calendar.department', 'on_call'))->name('calendar.depschedule');
+    Route::get('/department-ward', fn () => redirect()->route('calendar.department', 'ward'))->name('calendar.view-ward');
+    Route::get('/department-shift', fn () => redirect()->route('calendar.department', 'shift'))->name('calendar.view-shift');
+    Route::get('/your-schedule', [RosterController::class, 'yours'])->name('calendar.yourschedule');
+    Route::get('/calendar/events', [RosterController::class, 'events'])->name('calendar.events');
+    Route::get('/calendar/resources', [RosterController::class, 'resources'])->name('calendar.resources');
+    Route::patch('/assignments/{assignment}', [RosterController::class, 'update'])->name('assignments.update');
+    Route::get('/schedules/{type}/export', [RosterController::class, 'export'])->name('schedules.export');
+    Route::get('/ical', [IcalController::class, 'download'])->name('ical.download');
 
-        Route::get('/leave', [CalendarController::class, 'leave'])->name('calendar.leave');
-        Route::post('/leave', [CalendarController::class, 'storel'])->name('calendar.storeLeave');
-        Route::get('/oncall', [CalendarController::class, 'oncall'])->name('calendar.oncall');
-        Route::post('/oncall', [CalendarController::class, 'storeo'])->name('calendar.storeOnCall');
-        Route::get('/history', [CalendarController::class, 'history'])->name('calendar.history');
+    Route::middleware('role:scheduler,regular,admin')->group(function () {
+        Route::get('/leave', [ApplicationController::class, 'leave'])->name('calendar.leave');
+        Route::post('/leave', [ApplicationController::class, 'store'])->name('calendar.storeLeave');
+        Route::get('/oncall', [ApplicationController::class, 'onCall'])->name('calendar.oncall');
+        Route::post('/oncall', [ApplicationController::class, 'store'])->name('calendar.storeOnCall');
+        Route::get('/history', [ApplicationController::class, 'history'])->name('calendar.history');
+        Route::get('/swaps', [ApplicationController::class, 'swapForm'])->name('swaps.create');
+        Route::post('/swaps', [ApplicationController::class, 'storeSwap'])->name('swaps.store');
     });
 
-    Route::middleware('role:scheduler')->group(function () {
-        Route::get('/assign', [AssignController::class, 'assign'])->name('assign');
-        Route::get('/create-oncall', [AssignController::class, 'oncall'])->name('create-oncall');
-        Route::patch('/update-oncall/{id}', [AssignController::class, 'update'])->name('assign.update');
-        Route::delete('/delete-oncall/{id}', [AssignController::class, 'delete'])->name('assign.delete');
+    Route::middleware('role:scheduler,admin')->group(function () {
+        Route::get('/generate/{type}', [GeneratorController::class, 'show'])->name('generate.show');
+        Route::get('/create-oncall', fn () => redirect()->route('generate.show', 'on_call'))->name('create-oncall');
+        Route::get('/create-ward', fn () => redirect()->route('generate.show', 'ward'))->name('create-ward');
+        Route::get('/create-shift', fn () => redirect()->route('generate.show', 'shift'))->name('create-shift');
+        Route::post('/generate/{department}', [GeneratorController::class, 'store'])->name('generate.store');
+        Route::post('/runs/{run}/publish', [GeneratorController::class, 'publish'])->name('runs.publish');
 
-        Route::get('/assign-ward', [WardController::class, 'assignWard'])->name('assign-ward');
-        Route::get('/create-ward', [WardController::class, 'ward'])->name('create-ward');
-        Route::patch('/update-ward/{id}', [WardController::class, 'update'])->name('ward.update');
-        Route::delete('/delete-ward/{id}', [WardController::class, 'delete'])->name('ward.delete');
+        Route::get('/review', [ReviewController::class, 'index'])->name('review');
+        Route::get('/review-history', [ReviewController::class, 'history'])->name('reviewHistory');
+        Route::post('/review/{scheduleRequest}', [ReviewController::class, 'decide'])->name('review.decide');
 
-        Route::get('/assign-shift', [ShiftController::class, 'assignShift'])->name('assign-shift');
-        Route::get('/create-shift', [ShiftController::class, 'shift'])->name('create-shift');
-        Route::patch('/update-shift/{id}', [ShiftController::class, 'update'])->name('shift.update');
-        Route::delete('/delete-shift/{id}', [ShiftController::class, 'delete'])->name('shift.delete');
-
-        Route::get('/review', [CalendarController::class, 'review'])->name('review');
-        Route::get('/review-history', [CalendarController::class, 'reviewHistory'])->name('reviewHistory');
-        Route::patch('/review/update-leave/{id}', [CalendarController::class, 'updateReviewLeave'])->name('updateReviewLeave');
-        Route::patch('/review/update-oncall/{id}', [CalendarController::class, 'updateReviewOnCall'])->name('updateReviewOnCall');
-        Route::patch('/review/update-status-leave/{id}', [CalendarController::class, 'updateStatusLeave'])->name('updateStatusLeave');
-        Route::patch('/review/update-status-oncall/{id}', [CalendarController::class, 'updateStatusOnCall'])->name('updateStatusOnCall');
+        Route::get('/rules/{department}', function (Department $department) {
+            return view('roster.rules', ['department' => $department]);
+        })->name('rules.show');
     });
 
     Route::middleware('role:admin')->group(function () {
-        Route::get('/staff', [AdminController::class, 'manageStaff'])->name('manageStaff');
-        Route::post('/staff/update', [AdminController::class, 'updateStaff'])->name('updateStaff');
-        Route::get('/getStaff/{id}', [AdminController::class, 'getStaff'])->name('getStaff');
-        Route::view('/add-staff', 'addStaff')->name('staff-form');
-        Route::post('/adding', [AdminController::class, 'addStaff'])->name('addStaff');
-        Route::delete('/deleteStaff/{id}', [AdminController::class, 'deleteStaff'])->name('deleteStaff');
+        Route::get('/staff', [StaffController::class, 'index'])->name('manageStaff');
+        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+        Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');
+        Route::delete('/staff/{user}', [StaffController::class, 'destroy'])->name('staff.destroy');
+
+        Route::get('/holidays', [HolidayController::class, 'index'])->name('holidays.index');
+        Route::post('/holidays', [HolidayController::class, 'store'])->name('holidays.store');
+        Route::delete('/holidays/{holiday}', [HolidayController::class, 'destroy'])->name('holidays.destroy');
+
+        Route::get('/audit', function () {
+            return view('audit.index', [
+                'logs' => AuditLog::query()->with('user')->latest('id')->limit(150)->get(),
+            ]);
+        })->name('audit.index');
     });
 });
