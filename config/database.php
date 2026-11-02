@@ -76,6 +76,9 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            // Keep Postgres now()/useCurrent() on the same clock as the app,
+            // whatever timezone the database server itself is set to.
+            'timezone' => env('DB_TIMEZONE', env('APP_TIMEZONE', 'Asia/Kuala_Lumpur')),
         ],
 
         'sqlsrv' => [

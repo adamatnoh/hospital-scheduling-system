@@ -91,9 +91,13 @@ return [
     | will be used by the PHP date and date-time functions. We have gone
     | ahead and set this to a sensible default for you out of the box.
     |
+    | HSS runs in one Malaysian hospital, so everything (stored timestamps,
+    | what users see, and the scheduler) uses hospital time. Date-only
+    | roster fields (assignment dates, leave ranges) carry no time at all.
+    |
     */
 
-    'timezone' => 'Asia/Kuala_Lumpur',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Kuala_Lumpur'),
 
     /*
     |--------------------------------------------------------------------------
