@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\Role;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -13,16 +15,13 @@ class UserFactory extends Factory
 {
     protected $model = User::class;
 
-    /**
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
             'name' => $this->faker->name(),
-            'role' => 'regular',
+            'role' => Role::Regular,
             'email' => $this->faker->unique()->safeEmail(),
-            'department' => 'Orthopedics',
+            'department_id' => Department::factory(),
             'email_verified_at' => now(),
             'password' => 'password',
             'two_factor_secret' => null,
@@ -31,9 +30,24 @@ class UserFactory extends Factory
         ];
     }
 
+    public function admin(): static
+    {
+        return $this->state(fn () => [
+            'role' => Role::Admin,
+            'department_id' => null,
+        ]);
+    }
+
+    public function scheduler(): static
+    {
+        return $this->state(fn () => [
+            'role' => Role::Scheduler,
+        ]);
+    }
+
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn () => [
             'email_verified_at' => null,
         ]);
     }

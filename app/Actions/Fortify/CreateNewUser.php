@@ -2,6 +2,8 @@
 
 namespace App\Actions\Fortify;
 
+use App\Enums\Role;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -12,8 +14,6 @@ class CreateNewUser implements CreatesNewUsers
     use PasswordValidationRules;
 
     /**
-     * Validate and create a newly registered user.
-     *
      * @param  array<string, string>  $input
      */
     public function create(array $input): User
@@ -21,15 +21,15 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'department' => ['required', 'string', 'in:Orthopedics,Emergency'],
+            'department' => ['required', 'string', 'exists:departments,name'],
             'password' => $this->passwordRules(),
         ])->validate();
 
         return User::create([
             'name' => $input['name'],
-            'role' => 'regular',
+            'role' => Role::Regular,
             'email' => $input['email'],
-            'department' => $input['department'],
+            'department_id' => Department::query()->where('name', $input['department'])->value('id'),
             'password' => Hash::make($input['password']),
         ]);
     }

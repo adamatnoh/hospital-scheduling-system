@@ -1,12 +1,21 @@
 <?php
-//This is Public Holiday Model
-    namespace App\Models;
 
-    use Illuminate\Database\Eloquent\Factories\HasFactory;
-    use Illuminate\Database\Eloquent\Model;
+namespace App\Models;
 
-    class PublicHoliday extends Model
+use Illuminate\Database\Eloquent\Model;
+
+class PublicHoliday extends Model
+{
+    protected $fillable = [
+        'date',
+        'name',
+        'state',
+    ];
+
+    protected function casts(): array
     {
-        use HasFactory;
+        return [
+            'date' => 'date',
+        ];
     }
-?>
+}

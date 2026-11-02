@@ -185,7 +185,7 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $staff->name }}</td>
                                 <td>{{ $staff->id }}</td>
-                                <td>{{ $staff->department }}</td>
+                                <td>{{ $staff->department?->name }}</td>
                                 <td>{{ $staff->role }}</td>
                                 <td>{{ $staff->email }}</td>
                                 <td><button class="btn btn-danger btn-sm delete" onclick="deleteStaff('{{ $staff->id }}')">Delete</button>&nbsp;<button class="btn btn-primary btn-sm edit" data-bs-toggle="modal" data-bs-target="#leaveReviewModal" onclick="getStaff('{{ $staff->id }}')">Edit</button></td>
