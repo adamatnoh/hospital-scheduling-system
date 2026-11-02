@@ -45,17 +45,24 @@ class RosterController extends Controller
 
     public function events(Request $request): JsonResponse
     {
-        $type = AssignmentType::from($request->query('type', 'on_call'));
         $department = $this->selectedDepartment($request);
         abort_if($department === null, 404);
 
         $query = ScheduleAssignment::query()
             ->with(['user:id,name', 'ward:id,name,colour'])
             ->where('department_id', $department->id)
-            ->where('type', $type)
-            ->where('is_published', ! $request->boolean('preview'))
             ->whereDate('date', '>=', $request->query('start', now()->startOfMonth()->toDateString()))
             ->whereDate('date', '<=', $request->query('end', now()->endOfMonth()->toDateString()));
+
+        if ($request->query('type') !== 'all') {
+            $query->where('type', AssignmentType::from($request->query('type', 'on_call')));
+        }
+
+        if ($request->filled('run')) {
+            $query->where('schedule_run_id', $request->query('run'));
+        } else {
+            $query->where('is_published', true);
+        }
 
         if ($request->boolean('mine')) {
             $query->where('user_id', $request->user()->id);

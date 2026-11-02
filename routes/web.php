@@ -17,10 +17,8 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
 
-    return redirect()->route('login');
-});
-
-Route::view('/welcome', 'landing')->name('landing');
+    return view('landing');
+})->name('landing');
 
 Route::view('/unauthorized', 'unauthorized')->name('unauthorized');
 
