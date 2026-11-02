@@ -46,6 +46,9 @@ class RequestDecided extends Notification
             'status' => $this->request->status->value,
             'rejection_reason' => $this->request->rejection_reason,
             'start_date' => $this->request->start_date->toDateString(),
+            'title' => $this->request->type->label().' request '.$this->request->status->value,
+            'message' => 'Your '.strtolower($this->request->type->label()).' request for '.$this->request->start_date->format('d M Y').' was '.$this->request->status->value.'.',
+            'url' => url('/history'),
         ];
     }
 }

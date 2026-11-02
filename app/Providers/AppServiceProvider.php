@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\View\Composers\ShellComposer;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Volt\Volt;
 
@@ -21,5 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Volt::mount(resource_path('views/livewire'));
+
+        View::composer('layouts.hss', ShellComposer::class);
     }
 }

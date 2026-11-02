@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GeneratorController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\IcalController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RosterController;
 use App\Http\Controllers\StaffController;
@@ -30,6 +31,7 @@ Route::get('/ical/{token}', [IcalController::class, 'show'])->name('ical.feed');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
 
     Route::get('/department/{type}', [RosterController::class, 'department'])->name('calendar.department');
     Route::get('/department-oncall', fn () => redirect()->route('calendar.department', 'on_call'))->name('calendar.depschedule');

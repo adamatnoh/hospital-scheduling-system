@@ -39,6 +39,9 @@ class OnCallReminder extends Notification
             'assignment_id' => $this->assignment->id,
             'date' => $this->assignment->date->toDateString(),
             'department' => $this->assignment->department->name,
+            'title' => 'On call tomorrow',
+            'message' => 'You are on call on '.$this->assignment->date->format('D, d M').' · '.$this->assignment->department->name.'.',
+            'url' => url('/your-schedule'),
         ];
     }
 }

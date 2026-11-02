@@ -1,47 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('heading', 'HSS') | Hospital Scheduling System</title>
+    @include('partials.theme-head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-slate-100 text-slate-900">
-    <div class="hss-shell" x-data="{ open: false }">
+<body class="h-full bg-canvas font-sans text-ink antialiased">
+    <a href="#main" class="skip-link">Skip to content</a>
+    <div x-data="{ open: false }" @keydown.escape.window="open = false" class="min-h-full">
         @include('partials.sidebar')
-        <div class="min-w-0">
-            <header class="hss-top">
-                <button type="button" class="rounded border px-2 py-1 md:hidden" @click="open = !open" aria-label="Open menu">
-                    <i class="bi bi-list text-xl"></i>
-                </button>
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-slate-500">{{ config('hss.hospital') }}</p>
-                    <h1 class="text-lg font-semibold text-[#012970]">@yield('heading', 'Dashboard')</h1>
-                </div>
-                <div class="text-sm text-right">
-                    <p class="font-semibold">{{ auth()->user()->displayName() }}</p>
-                    <p class="text-slate-500">{{ auth()->user()->role?->label() }}{{ auth()->user()->department ? ' · '.auth()->user()->department->name : '' }}</p>
-                </div>
-            </header>
-            <main class="p-4 md:p-6">
-                @if (session('status'))
-                    <p class="mb-4 rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-900" role="status">{{ session('status') }}</p>
-                @endif
+
+        <div class="lg:pl-72">
+            @include('partials.topbar')
+
+            <main id="main" class="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8" tabindex="-1">
                 @if ($errors->any())
-                    <div class="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-red-900" role="alert">
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                    <div class="mb-5 flex gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill mt-0.5 text-rose-600" aria-hidden="true"></i>
+                        <div>
+                            <p class="font-semibold">Please fix the following:</p>
+                            <ul class="mt-1 list-disc pl-5">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
                     </div>
                 @endif
                 @yield('content')
             </main>
+
+            <footer class="mx-auto max-w-[1440px] px-4 pb-6 text-xs text-muted sm:px-6 lg:px-8">
+                © {{ now()->year }} {{ config('hss.hospital') }} · Hospital Scheduling System
+            </footer>
         </div>
     </div>
+    <x-ui.toasts />
     @livewireScripts
     @stack('scripts')
 </body>
