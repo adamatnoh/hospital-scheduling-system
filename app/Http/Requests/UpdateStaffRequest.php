@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\Role;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,7 +13,7 @@ class UpdateStaffRequest extends FormRequest
     {
         $staff = $this->route('user');
 
-        return $staff instanceof \App\Models\User
+        return $staff instanceof User
             && ($this->user()?->can('update', $staff) ?? false);
     }
 

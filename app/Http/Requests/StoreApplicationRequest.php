@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\RequestType;
+use App\Models\ScheduleRequest;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -10,7 +11,7 @@ class StoreApplicationRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('create', \App\Models\ScheduleRequest::class) ?? false;
+        return $this->user()?->can('create', ScheduleRequest::class) ?? false;
     }
 
     /**

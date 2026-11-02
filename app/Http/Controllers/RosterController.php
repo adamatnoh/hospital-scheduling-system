@@ -14,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,7 +33,7 @@ class RosterController extends Controller
             'department' => $department,
             'departments' => $this->departments($request),
             'shifts' => Shift::cases(),
-            'doctors' => $department?->doctors ?? collect(),
+            'doctors' => $department === null ? collect() : $department->doctors,
         ]);
     }
 
@@ -75,8 +76,8 @@ class RosterController extends Controller
                 'title' => $assignment->label(),
                 'start' => $assignment->date->toDateString(),
                 'allDay' => true,
-                'backgroundColor' => $assignment->shift?->colour() ?? ($assignment->ward?->colour ?? '#012970'),
-                'borderColor' => $assignment->shift?->colour() ?? ($assignment->ward?->colour ?? '#012970'),
+                'backgroundColor' => $this->eventColour($assignment),
+                'borderColor' => $this->eventColour($assignment),
                 'resourceId' => (string) $assignment->user_id,
                 'editable' => $actor->can('update', $assignment),
             ];
@@ -161,6 +162,19 @@ class RosterController extends Controller
         return $pdf->download($filename.'.pdf');
     }
 
+    private function eventColour(ScheduleAssignment $assignment): string
+    {
+        if ($assignment->shift instanceof Shift) {
+            return $assignment->shift->colour();
+        }
+
+        if ($assignment->ward_id !== null) {
+            return $assignment->ward->colour ?? '#012970';
+        }
+
+        return '#012970';
+    }
+
     private function selectedDepartment(Request $request): ?Department
     {
         if ($request->user()->isAdmin()) {
@@ -175,7 +189,7 @@ class RosterController extends Controller
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, Department>
+     * @return Collection<int, Department>
      */
     private function departments(Request $request)
     {

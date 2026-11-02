@@ -18,6 +18,11 @@ if (element) {
             center: 'title',
             right: mobile ? 'listWeek,dayGridMonth' : 'resourceTimelineMonth,dayGridMonth,listWeek',
         },
+        views: {
+            resourceTimelineMonth: { buttonText: 'timeline' },
+            dayGridMonth: { buttonText: 'month' },
+            listWeek: { buttonText: 'list' },
+        },
         resourceAreaHeaderContent: 'Doctors',
         resources: element.dataset.resourcesUrl,
         events: element.dataset.eventsUrl,

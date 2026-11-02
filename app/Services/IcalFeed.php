@@ -41,6 +41,6 @@ class IcalFeed
 
     private function escape(string $value): string
     {
-        return str_replace(["\\", ";", ",", "\n"], ["\\\\", "\\;", "\\,", " "], $value);
+        return str_replace(['\\', ';', ',', "\n"], ['\\\\', '\\;', '\\,', ' '], $value);
     }
 }

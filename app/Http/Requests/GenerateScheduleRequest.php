@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\AssignmentType;
 use App\Models\Department;
+use App\Models\ScheduleRun;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,7 +15,7 @@ class GenerateScheduleRequest extends FormRequest
         $department = $this->route('department');
 
         return $department instanceof Department
-            && ($this->user()?->can('generate', [\App\Models\ScheduleRun::class, $department]) ?? false);
+            && ($this->user()?->can('generate', [ScheduleRun::class, $department]) ?? false);
     }
 
     /**

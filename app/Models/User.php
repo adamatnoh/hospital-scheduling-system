@@ -12,11 +12,18 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property Role $role
+ * @property int|null $department_id
+ * @property string|null $calendar_token
+ */
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasApiTokens;
+
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use Notifiable;
     use TwoFactorAuthenticatable;
 
@@ -46,16 +53,19 @@ class User extends Authenticatable
         ];
     }
 
+    /** @return BelongsTo<Department, $this> */
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
     }
 
+    /** @return HasMany<ScheduleRequest, $this> */
     public function requests(): HasMany
     {
         return $this->hasMany(ScheduleRequest::class);
     }
 
+    /** @return HasMany<ScheduleAssignment, $this> */
     public function assignments(): HasMany
     {
         return $this->hasMany(ScheduleAssignment::class);
