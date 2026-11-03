@@ -4,7 +4,7 @@
     <x-ui.page-header title="Your schedule" icon="bi-calendar-check"
         subtitle="Published on-call, ward and shift duties for your login.">
         <x-slot:actions>
-            <x-ui.button variant="outline" icon="bi-calendar2-plus" :href="route('ical.download')">Download iCal</x-ui.button>
+            <x-ui.button variant="outline" icon="bi-calendar2-plus" :href="route('calendar.subscribe')">Subscribe to calendar</x-ui.button>
         </x-slot:actions>
     </x-ui.page-header>
     @if ($user->department_id)

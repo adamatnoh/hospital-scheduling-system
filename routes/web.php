@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\CalendarFeedController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemoLoginController;
 use App\Http\Controllers\GeneratorController;
 use App\Http\Controllers\HolidayController;
-use App\Http\Controllers\IcalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RosterController;
@@ -14,7 +14,12 @@ use App\Http\Controllers\StaffController;
 use App\Models\Announcement;
 use App\Models\AuditLog;
 use App\Models\Department;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -33,7 +38,19 @@ Route::post('/demo-login/{role}', DemoLoginController::class)
     ->middleware(['guest', 'throttle:10,1'])
     ->name('demo-login');
 
-Route::get('/ical/{token}', [IcalController::class, 'show'])->name('ical.feed');
+// Calendar apps fetch these with no cookies, so skip the session entirely.
+Route::withoutMiddleware([
+    EncryptCookies::class,
+    AddQueuedCookiesToResponse::class,
+    StartSession::class,
+    ShareErrorsFromSession::class,
+    ValidateCsrfToken::class,
+])->middleware('throttle:60,1')->group(function () {
+    Route::get('/calendar/feed/{token}.ics', [CalendarFeedController::class, 'show'])
+        ->where('token', '[A-Za-z0-9]{40}')
+        ->name('calendar.feed');
+    Route::get('/ical/{token}', [CalendarFeedController::class, 'legacy'])->name('ical.feed');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -48,7 +65,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/calendar/resources', [RosterController::class, 'resources'])->name('calendar.resources');
     Route::patch('/assignments/{assignment}', [RosterController::class, 'update'])->name('assignments.update');
     Route::get('/schedules/{type}/export', [RosterController::class, 'export'])->name('schedules.export');
-    Route::get('/ical', [IcalController::class, 'download'])->name('ical.download');
+    Route::get('/ical', [CalendarFeedController::class, 'download'])->name('ical.download');
+    Route::get('/calendar/subscribe', [CalendarFeedController::class, 'subscribe'])->name('calendar.subscribe');
+    Route::post('/calendar/subscribe/reset', [CalendarFeedController::class, 'reset'])
+        ->middleware('throttle:10,1')
+        ->name('calendar.subscribe.reset');
 
     Route::middleware('role:scheduler,regular,admin')->group(function () {
         Route::get('/leave', [ApplicationController::class, 'leave'])->name('calendar.leave');

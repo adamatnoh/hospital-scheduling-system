@@ -14,6 +14,17 @@ return [
     'demo_login' => (bool) env('DEMO_LOGIN', env('APP_ENV', 'production') === 'local'),
 
     /*
+    | Shift hours in the app timezone, used for the timed events in each
+    | doctor's calendar feed. A shift that ends at or before its start time
+    | (Night) finishes the next morning. On-call and ward duties are all-day.
+    */
+    'shift_hours' => [
+        'Morning' => ['07:00', '14:00'],
+        'Evening' => ['14:00', '21:00'],
+        'Night' => ['21:00', '07:00'],
+    ],
+
+    /*
     | Malaysian states used when a department decides which public holidays
     | count. National holidays apply to every department as well.
     */
