@@ -116,18 +116,23 @@
                     </span>
                     <i class="bi bi-chevron-down hidden text-xs text-muted sm:block" aria-hidden="true"></i>
                 </button>
+                {{-- Sections are split by one divider each. Items show focus as a filled row:
+                     the global outline would be clipped by overflow-hidden into stray lines. --}}
+                @php($menuItem = 'flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-subtle focus-visible:bg-subtle focus-visible:outline-none focus-visible:shadow-[inset_2px_0_0_var(--color-brand-500)]')
                 <div x-show="menu" x-cloak x-transition.origin.top.right
-                     class="absolute right-0 top-12 w-64 overflow-hidden rounded-2xl border border-line bg-surface py-1 shadow-[var(--shadow-raised)]">
-                    <div class="border-b border-line px-4 py-3">
+                     class="absolute right-0 top-12 w-64 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-raised)]">
+                    <div class="px-4 py-3">
                         <p class="truncate text-sm font-semibold text-ink">{{ $user->displayName() }}</p>
                         <p class="truncate text-xs text-muted">{{ $user->email }}</p>
                         <p class="mt-1 text-xs text-muted">{{ $user->role?->label() }}{{ $user->department ? ' · '.$user->department->name : '' }}</p>
                     </div>
-                    <a href="{{ route('calendar.yourschedule') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-ink hover:bg-subtle"><i class="bi bi-calendar-check text-muted" aria-hidden="true"></i>Your schedule</a>
-                    <a href="{{ route('ical.download') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-ink hover:bg-subtle"><i class="bi bi-calendar2-plus text-muted" aria-hidden="true"></i>Download iCal</a>
-                    <form method="POST" action="{{ route('logout') }}" class="border-t border-line">
+                    <div class="py-1">
+                        <a href="{{ route('calendar.yourschedule') }}" class="{{ $menuItem }} text-ink"><i class="bi bi-calendar-check w-4 text-muted" aria-hidden="true"></i>Your schedule</a>
+                        <a href="{{ route('calendar.subscribe') }}" class="{{ $menuItem }} text-ink"><i class="bi bi-calendar2-plus w-4 text-muted" aria-hidden="true"></i>Subscribe to calendar</a>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}" class="py-1">
                         @csrf
-                        <button type="submit" class="flex w-full items-center gap-3 px-4 py-2 text-sm text-rose-700 hover:bg-subtle dark:text-rose-300"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Log out</button>
+                        <button type="submit" class="{{ $menuItem }} text-rose-700 dark:text-rose-300"><i class="bi bi-box-arrow-right w-4" aria-hidden="true"></i>Log out</button>
                     </form>
                 </div>
             </div>
