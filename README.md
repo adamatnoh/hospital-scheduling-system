@@ -122,3 +122,8 @@ All three read the same context: doctors in the department (everyone except admi
 ![Your schedule](docs/screenshots/your-schedule.png)
 
 The department calendar uses FullCalendar's resource timeline. That plugin is premium: without `VITE_FULLCALENDAR_LICENSE` the view still renders and FullCalendar prints a license reminder in the console.
+
+## Credits
+
+- Doctor portrait (`public/images/doctor-*.webp`, `dr.jpg`): [Hiếu Lê on Pexels](https://www.pexels.com/photo/professional-doctor-in-white-coat-with-stethoscope-38618421/), Pexels License.
+- Login background (`public/images/login_bg.jpg`): [Vitaly Gariev on Unsplash](https://unsplash.com/photos/doctor-writing-on-clipboard-in-office-xDNwySMfR5I), Unsplash License.
