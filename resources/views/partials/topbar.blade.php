@@ -49,8 +49,10 @@
         </div>
 
         <div class="ml-auto flex shrink-0 items-center gap-1.5 md:ml-3">
-            <div class="hidden text-right xl:block" x-data="{ now: new Date(), init() { setInterval(() => this.now = new Date(), 30000) } }">
-                <p class="text-sm font-semibold tabular-nums text-ink" x-text="now.toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', timeZone: @js(config('app.timezone')) })">{{ now()->format('h:i A') }}</p>
+            {{-- Ticks on each second boundary; tabular figures keep the width steady. --}}
+            <div class="hidden text-right tabular-nums xl:block"
+                 x-data="{ now: new Date(), init() { const tick = () => { this.now = new Date(); setTimeout(tick, 1000 - (Date.now() % 1000)) }; tick() } }">
+                <p class="min-w-[6.5rem] text-sm font-semibold text-ink" x-text="now.toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: @js(config('app.timezone')) })">{{ now()->format('h:i:s a') }}</p>
                 <p class="text-xs text-muted" x-text="now.toLocaleDateString('en-MY', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: @js(config('app.timezone')) })">{{ now()->format('D, j M Y') }}</p>
             </div>
             <span class="mx-2 hidden h-8 w-px bg-line xl:block" aria-hidden="true"></span>
