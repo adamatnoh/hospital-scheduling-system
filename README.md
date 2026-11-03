@@ -34,9 +34,9 @@ Committed logs, sessions, cache files and compiled views were removed from the t
 
 | Login | Password | Role |
 | --- | --- | --- |
-| admin@hss.test | password | Admin, all departments |
-| scheduler@hss.test | password | Scheduler, Orthopedics (Dr Adam Najmi) |
-| doctor@hss.test | password | Doctor, Orthopedics (Dr Aisha Rahman) |
+| admin@hss.test | password | Admin, all departments (Dr Adam) |
+| scheduler@hss.test | password | Scheduler, Orthopedics (Dr Farah) |
+| doctor@hss.test | password | Doctor, Orthopedics (Dr Firdaus) |
 
 Emergency has its own scheduler at `emergency.scheduler@hss.test`.
 

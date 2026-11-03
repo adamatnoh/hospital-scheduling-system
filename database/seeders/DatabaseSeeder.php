@@ -49,8 +49,10 @@ class DatabaseSeeder extends Seeder
 
         $this->holidays();
 
+        // Doctor names are stored without the title; User::displayName() adds "Dr"
+        // for schedulers and doctors. Admins are shown as stored.
         User::query()->create([
-            'name' => 'Hospital Admin',
+            'name' => 'Dr Adam',
             'email' => 'admin@hss.test',
             'password' => Hash::make('password'),
             'role' => Role::Admin,
@@ -58,7 +60,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $scheduler = User::query()->create([
-            'name' => 'Adam Najmi',
+            'name' => 'Farah',
             'email' => 'scheduler@hss.test',
             'password' => Hash::make('password'),
             'role' => Role::Scheduler,
@@ -66,7 +68,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $doctor = User::query()->create([
-            'name' => 'Aisha Rahman',
+            'name' => 'Firdaus',
             'email' => 'doctor@hss.test',
             'password' => Hash::make('password'),
             'role' => Role::Regular,

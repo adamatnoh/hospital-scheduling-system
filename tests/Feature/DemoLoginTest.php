@@ -69,3 +69,18 @@ it('throttles repeated demo sign-in attempts', function () {
 
     $this->post(route('demo-login', 'doctor'))->assertStatus(429);
 });
+
+it('seeds the demo accounts with their display names', function (string $role, string $name) {
+    $this->seed();
+
+    $this->post(route('demo-login', $role))->assertRedirect(route('dashboard'));
+
+    $this->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee($name)
+        ->assertDontSee('Dr Dr');
+})->with([
+    'admin' => ['admin', 'Dr Adam'],
+    'scheduler' => ['scheduler', 'Dr Farah'],
+    'doctor' => ['doctor', 'Dr Firdaus'],
+]);
