@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CronController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Vercel Cron Job (see vercel.json); protected by the CRON_SECRET bearer token.
+Route::get('/cron/daily', CronController::class)->name('cron.daily');

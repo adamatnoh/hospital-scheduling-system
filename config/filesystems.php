@@ -36,7 +36,15 @@ return [
             'throw' => false,
         ],
 
-        'public' => [
+        // On Vercel the local disk is ephemeral, so uploads go to a public
+        // Vercel Blob store instead (set PUBLIC_DISK_DRIVER=vercel-blob).
+        'public' => env('PUBLIC_DISK_DRIVER') === 'vercel-blob' ? [
+            'driver' => 'vercel-blob',
+            'token' => env('BLOB_READ_WRITE_TOKEN'),
+            'prefix' => env('BLOB_PREFIX', ''),
+            'visibility' => 'public',
+            'throw' => false,
+        ] : [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
