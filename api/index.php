@@ -43,4 +43,11 @@ foreach ([
     }
 }
 
+// The function lives at /api/index.php, so Symfony would treat "/api" as
+// the base URL and strip it from every /api/* path (e.g. the cron route).
+// Present the request as if it came through public/index.php instead.
+$_SERVER['SCRIPT_FILENAME'] = __DIR__.'/../public/index.php';
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['PHP_SELF'] = '/index.php';
+
 require __DIR__.'/../public/index.php';
