@@ -5,7 +5,7 @@
         </x-slot>
 
         <div class="mb-6 flex items-center gap-4">
-            <img src="{{ asset('images/doctor-avatar.webp') }}" width="192" height="192" alt="" class="h-12 w-12 rounded-xl object-cover ring-1 ring-line">
+            <img src="{{ asset('images/doctor-face-192.webp') }}" width="192" height="192" alt="" class="h-12 w-12 rounded-xl object-cover ring-1 ring-line">
             <div>
                 <h1 class="text-xl font-bold tracking-tight">Register</h1>
                 <p class="text-sm text-muted">Welcome onboard with us!</p>

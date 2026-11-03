@@ -125,5 +125,5 @@ The department calendar uses FullCalendar's resource timeline. That plugin is pr
 
 ## Credits
 
-- Doctor portrait (`public/images/doctor-*.webp`, `dr.jpg`): [Hiếu Lê on Pexels](https://www.pexels.com/photo/professional-doctor-in-white-coat-with-stethoscope-38618421/), Pexels License.
+- Doctor portrait (`public/images/doctor-card-*.webp`, `doctor-face-192.webp`, `dr.jpg`): supplied by the project owner.
 - Login background (`public/images/login_bg.jpg`): [Vitaly Gariev on Unsplash](https://unsplash.com/photos/doctor-writing-on-clipboard-in-office-xDNwySMfR5I), Unsplash License.

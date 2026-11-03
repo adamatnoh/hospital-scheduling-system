@@ -41,10 +41,10 @@
                     </div>
                 </div>
                 <div class="relative mx-auto w-full max-w-sm">
-                    <img src="{{ asset('images/doctor-1200.webp') }}"
-                         srcset="{{ asset('images/doctor-600.webp') }} 600w, {{ asset('images/doctor-1200.webp') }} 1200w"
-                         sizes="(min-width: 640px) 384px, 100vw" width="1200" height="1500"
-                         alt="A doctor at the hospital" class="aspect-[4/5] w-full rounded-3xl object-cover shadow-2xl ring-1 ring-white/20">
+                    <img src="{{ asset('images/doctor-card-984.webp') }}"
+                         srcset="{{ asset('images/doctor-card-600.webp') }} 600w, {{ asset('images/doctor-card-984.webp') }} 984w"
+                         sizes="(min-width: 640px) 384px, 100vw" width="984" height="1230"
+                         alt="A doctor at the hospital" class="aspect-[4/5] w-full rounded-3xl bg-[#f3f1ea] object-cover object-[50%_20%] shadow-2xl ring-1 ring-white/20">
                     <div class="absolute -bottom-6 -left-6 flex items-center gap-3 rounded-2xl bg-white p-4 text-navy-900 shadow-xl">
                         <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-700"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span>
                         <div>

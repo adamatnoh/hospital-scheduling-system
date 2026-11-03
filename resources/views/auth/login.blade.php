@@ -26,7 +26,7 @@
             </div>
 
             <figure class="relative flex max-w-md items-center gap-4 rounded-2xl bg-white/10 p-4 ring-1 ring-white/15 backdrop-blur">
-                <img src="{{ asset('images/doctor-avatar.webp') }}" width="192" height="192" alt="" class="h-14 w-14 rounded-xl object-cover ring-2 ring-white/30">
+                <img src="{{ asset('images/doctor-face-192.webp') }}" width="192" height="192" alt="" class="h-14 w-14 rounded-xl object-cover ring-2 ring-white/30">
                 <figcaption>
                     <p class="font-semibold">Welcome onboard with us!</p>
                     <p class="text-sm text-navy-100">Sign in with your hospital account to see your duties.</p>
@@ -39,7 +39,7 @@
             <div class="w-full max-w-md">
                 <div class="mb-8 lg:hidden">
                     <div class="relative mb-6 h-36 overflow-hidden rounded-2xl login-art">
-                        <img src="{{ asset('images/doctor-avatar.webp') }}" width="192" height="192" alt="" class="absolute bottom-3 right-3 h-16 w-16 rounded-xl object-cover ring-2 ring-white/40">
+                        <img src="{{ asset('images/doctor-face-192.webp') }}" width="192" height="192" alt="" class="absolute bottom-3 right-3 h-16 w-16 rounded-xl object-cover ring-2 ring-white/40">
                         <div class="absolute left-4 top-4"><x-ui.logo dark /></div>
                     </div>
                 </div>
