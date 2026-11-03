@@ -9,7 +9,7 @@
 </head>
 <body class="h-full bg-canvas font-sans text-ink antialiased">
     <div class="grid min-h-full lg:grid-cols-[1.1fr_1fr]">
-        {{-- Art panel: the original login_bg.jpg under a clinical gradient --}}
+        {{-- Art panel: login_bg.jpg under a clinical gradient. Photo credits are in the README. --}}
         <aside class="login-art relative hidden flex-col justify-between overflow-hidden p-10 text-white lg:flex xl:p-14">
             <div class="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-brand-400/25 blur-3xl" aria-hidden="true"></div>
             <a href="{{ route('landing') }}" class="relative"><x-ui.logo dark size="lg" /></a>
@@ -26,7 +26,7 @@
             </div>
 
             <figure class="relative flex max-w-md items-center gap-4 rounded-2xl bg-white/10 p-4 ring-1 ring-white/15 backdrop-blur">
-                <img src="{{ asset('images/dr.jpg') }}" alt="" class="h-14 w-14 rounded-xl object-cover ring-2 ring-white/30">
+                <img src="{{ asset('images/doctor-avatar.webp') }}" width="192" height="192" alt="" class="h-14 w-14 rounded-xl object-cover ring-2 ring-white/30">
                 <figcaption>
                     <p class="font-semibold">Welcome onboard with us!</p>
                     <p class="text-sm text-navy-100">Sign in with your hospital account to see your duties.</p>
@@ -39,7 +39,7 @@
             <div class="w-full max-w-md">
                 <div class="mb-8 lg:hidden">
                     <div class="relative mb-6 h-36 overflow-hidden rounded-2xl login-art">
-                        <img src="{{ asset('images/dr.jpg') }}" alt="" class="absolute bottom-3 right-3 h-16 w-16 rounded-xl object-cover ring-2 ring-white/40">
+                        <img src="{{ asset('images/doctor-avatar.webp') }}" width="192" height="192" alt="" class="absolute bottom-3 right-3 h-16 w-16 rounded-xl object-cover ring-2 ring-white/40">
                         <div class="absolute left-4 top-4"><x-ui.logo dark /></div>
                     </div>
                 </div>
@@ -82,19 +82,30 @@
                     <button class="hss-btn hss-btn-primary w-full !py-3 text-base" type="submit">Log in <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
                 </form>
 
-                @if (app()->environment('local'))
-                    <div class="mt-8 rounded-2xl border border-dashed border-line bg-subtle p-4">
-                        <p class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted"><i class="bi bi-person-badge" aria-hidden="true"></i>Demo logins (password: password)</p>
+                @if (config('hss.demo_login'))
+                    <section class="mt-8 rounded-2xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-800 dark:bg-brand-900/20" aria-labelledby="demo-heading">
+                        <div class="flex items-center justify-between gap-2">
+                            <h2 id="demo-heading" class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-800 dark:text-brand-200"><i class="bi bi-person-badge" aria-hidden="true"></i>Demo accounts</h2>
+                            <span class="text-xs text-muted">One click, no password</span>
+                        </div>
                         <div class="mt-3 grid gap-2 sm:grid-cols-3">
-                            @foreach (['admin@hss.test' => 'Admin', 'scheduler@hss.test' => 'Scheduler', 'doctor@hss.test' => 'Doctor'] as $demoEmail => $demoRole)
-                                <button type="button" class="rounded-xl border border-line bg-surface px-3 py-2 text-left text-xs hover:border-brand-400 hover:bg-brand-50/50 dark:hover:bg-brand-900/20"
-                                        onclick="document.getElementById('email').value = '{{ $demoEmail }}'; document.getElementById('password').value = 'password'; document.getElementById('password').focus();">
-                                    <span class="block font-semibold text-ink">{{ $demoRole }}</span>
-                                    <span class="block truncate text-muted">{{ $demoEmail }}</span>
-                                </button>
+                            @foreach ([
+                                'admin' => ['Admin', 'bi-shield-lock', 'Staff, holidays, audit'],
+                                'scheduler' => ['Scheduler', 'bi-calendar2-week', 'Generate and review'],
+                                'doctor' => ['Doctor', 'bi-heart-pulse', 'Own duties and requests'],
+                            ] as $demoRole => [$demoLabel, $demoIcon, $demoHint])
+                                <form method="POST" action="{{ route('demo-login', $demoRole) }}">
+                                    @csrf
+                                    <button type="submit" data-demo-login="{{ $demoRole }}"
+                                            class="group flex h-full w-full flex-col rounded-xl border border-line bg-surface px-3 py-2.5 text-left text-xs shadow-sm transition hover:border-brand-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-brand-500 dark:hover:bg-brand-900/30">
+                                        <span class="flex items-center gap-1.5 text-sm font-semibold text-ink"><i class="bi {{ $demoIcon }} text-brand-600 dark:text-brand-300" aria-hidden="true"></i>{{ $demoLabel }}</span>
+                                        <span class="mt-0.5 block text-muted">{{ $demoHint }}</span>
+                                        <span class="mt-1.5 inline-flex items-center gap-1 font-semibold text-brand-700 group-hover:underline dark:text-brand-300">Sign in <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+                                    </button>
+                                </form>
                             @endforeach
                         </div>
-                    </div>
+                    </section>
                 @endif
 
                 <p class="mt-10 text-center text-xs text-muted">© {{ now()->year }} {{ config('hss.hospital') }}</p>

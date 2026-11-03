@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DemoLoginController;
 use App\Http\Controllers\GeneratorController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\IcalController;
@@ -26,6 +27,11 @@ Route::get('/', function () {
 })->name('landing');
 
 Route::view('/unauthorized', 'unauthorized')->name('unauthorized');
+
+Route::post('/demo-login/{role}', DemoLoginController::class)
+    ->whereIn('role', array_keys(DemoLoginController::ACCOUNTS))
+    ->middleware(['guest', 'throttle:10,1'])
+    ->name('demo-login');
 
 Route::get('/ical/{token}', [IcalController::class, 'show'])->name('ical.feed');
 
