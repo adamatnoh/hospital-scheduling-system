@@ -23,24 +23,24 @@
     </section>
 @else
 <section id="{{ $id }}" data-carousel data-interval="{{ $interval }}"
-         {{ $attributes->merge(['class' => 'hss-carousel group/carousel relative overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-card)]']) }}
+         {{ $attributes->merge(['class' => 'hss-carousel group/carousel relative w-full min-w-0 overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-card)]']) }}
          aria-roledescription="carousel" aria-label="Hospital announcements">
     <div class="overflow-hidden" data-carousel-viewport>
         <div class="flex" data-carousel-track aria-live="off" id="{{ $id }}-track">
             @foreach ($announcements as $index => $announcement)
-                <article class="grid w-full shrink-0 grow-0 basis-full {{ $hero ? 'md:grid-cols-[1.1fr_1fr]' : 'md:grid-cols-[1fr_1fr]' }}"
+                <article class="grid w-full min-w-0 shrink-0 grow-0 basis-full grid-cols-1 {{ $hero ? 'md:grid-cols-[1.1fr_1fr]' : 'md:grid-cols-[1fr_1fr]' }}"
                          role="group" aria-roledescription="slide" aria-label="{{ $index + 1 }} of {{ $count }}: {{ $announcement->title }}"
                          data-carousel-slide @if ($index > 0) aria-hidden="true" @endif>
-                    <div class="relative isolate flex items-center justify-center overflow-hidden bg-navy-950 {{ $hero ? 'h-72 md:h-[26rem]' : 'h-64 md:h-[21rem]' }}">
+                    <div class="relative isolate flex min-w-0 items-center justify-center overflow-hidden bg-navy-950 {{ $hero ? 'h-72 md:h-[26rem]' : 'h-64 md:h-[21rem]' }}">
                         @if ($announcement->image_url)
                             <img src="{{ $announcement->image_url }}" alt="" aria-hidden="true" class="absolute inset-0 -z-10 h-full w-full scale-110 object-cover opacity-50 blur-2xl" loading="lazy">
                             <img src="{{ $announcement->image_url }}" alt="Poster: {{ $announcement->title }}"
-                                 class="h-full w-auto max-w-full object-contain p-3 drop-shadow-2xl" @if ($index > 0) loading="lazy" @endif>
+                                 class="h-full w-auto min-w-0 max-w-full object-contain p-3 drop-shadow-2xl" @if ($index > 0) loading="lazy" @endif>
                         @else
                             <i class="bi bi-megaphone text-6xl text-white/40" aria-hidden="true"></i>
                         @endif
                     </div>
-                    <div class="flex flex-col justify-between gap-4 p-5 md:p-7">
+                    <div class="flex min-w-0 flex-col justify-between gap-4 p-5 md:p-7">
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <x-ui.badge tone="brand" icon="bi-megaphone-fill">Announcement</x-ui.badge>
@@ -48,9 +48,9 @@
                                     <span class="text-xs text-muted"><time datetime="{{ $announcement->published_at->toDateString() }}">{{ $announcement->published_at->format('d M Y') }}</time></span>
                                 @endif
                             </div>
-                            <h3 class="mt-3 font-bold tracking-tight text-ink {{ $hero ? 'text-2xl md:text-3xl' : 'text-xl' }}">{{ $announcement->title }}</h3>
+                            <h3 class="mt-3 font-bold tracking-tight break-words text-ink {{ $hero ? 'text-2xl md:text-3xl' : 'text-xl' }}">{{ $announcement->title }}</h3>
                             @if ($announcement->body)
-                                <p class="mt-2 text-sm leading-relaxed text-muted {{ $hero ? 'md:text-base' : 'line-clamp-5' }}">{{ $announcement->body }}</p>
+                                <p class="mt-2 text-sm leading-relaxed break-words text-muted {{ $hero ? 'md:text-base' : 'line-clamp-5' }}">{{ $announcement->body }}</p>
                             @endif
                         </div>
                         <div class="flex flex-wrap items-center gap-2">

@@ -8,7 +8,7 @@
         </x-slot:actions>
     </x-ui.page-header>
 
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_26rem]">
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_26rem]">
         <x-ui.card flush>
             @if ($announcements->isEmpty())
                 <x-ui.empty icon="bi-megaphone" title="No announcements yet">

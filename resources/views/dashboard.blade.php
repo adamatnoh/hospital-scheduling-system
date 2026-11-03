@@ -73,8 +73,8 @@
     </div>
 
     {{-- Announcements + timeline --}}
-    <div class="mt-6 grid gap-6 xl:grid-cols-3">
-        <div class="xl:col-span-2">
+    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div class="min-w-0 xl:col-span-2">
             <div class="mb-3 flex items-center justify-between">
                 <h3 class="flex items-center gap-2 font-semibold text-ink"><i class="bi bi-megaphone text-brand-600 dark:text-brand-300" aria-hidden="true"></i>Announcements</h3>
                 @if ($user->isAdmin())
@@ -115,7 +115,7 @@
     </div>
 
     {{-- Workload + gaps --}}
-    <div class="mt-6 grid gap-6 xl:grid-cols-3">
+    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
         <x-ui.card class="xl:col-span-2" title="Workload this month" :subtitle="now()->format('F Y').' · published duties per doctor'" icon="bi-bar-chart-line">
             @if (collect($stats['workload'])->isEmpty())
                 <x-ui.empty icon="bi-bar-chart" title="No published roster yet">Generate and publish a roster to see how duties are shared.</x-ui.empty>
