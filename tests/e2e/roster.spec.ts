@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import fs from 'node:fs';
 
-// Screenshots land in docs/screenshots unless PLAYWRIGHT_SHOTS points elsewhere.
-const shot = process.env.PLAYWRIGHT_SHOTS ?? 'docs/screenshots';
+// Screenshots land in test-results/screenshots unless PLAYWRIGHT_SHOTS points elsewhere.
+// The README images in docs/screenshots are curated by hand and are not overwritten.
+const shot = process.env.PLAYWRIGHT_SHOTS ?? 'test-results/screenshots';
 
 test.beforeAll(() => {
     fs.mkdirSync(shot, { recursive: true });
