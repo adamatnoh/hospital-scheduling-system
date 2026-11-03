@@ -6,6 +6,7 @@ use App\Filesystem\VercelBlobAdapter;
 use App\View\Composers\ShellComposer;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
@@ -26,6 +27,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Every generated link and asset uses https in production, even if a
+        // proxy forwards the request to PHP over plain http.
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         Volt::mount(resource_path('views/livewire'));
 
         View::composer('layouts.hss', ShellComposer::class);
