@@ -1,8 +1,11 @@
 import './bootstrap';
+import { inject } from '@vercel/analytics';
 import Swal from 'sweetalert2';
 import './calendar';
 import './carousel';
 import './charts';
+
+inject();
 
 document.addEventListener('submit', (event) => {
     const form = event.target;
